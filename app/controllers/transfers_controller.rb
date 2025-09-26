@@ -1,3 +1,5 @@
+require 'securerandom'
+
 class TransfersController < ApplicationController
   def create
     begin
@@ -11,7 +13,7 @@ class TransfersController < ApplicationController
         send_value: product.dig(:Maximum, :SendValue),
         validate_only: true,
         account_number: product.dig(:UatNumber),
-        distributor_ref: 'teste1234'
+        distributor_ref: SecureRandom.uuid.gsub('-', '')
       )
 
       if response[:success]

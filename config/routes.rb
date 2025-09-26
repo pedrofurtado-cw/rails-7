@@ -3,11 +3,10 @@ Rails.application.routes.draw do
     [
       200,
       { "Content-Type" => "application/json" },
-      [ { app: 'funcionou', ok: true, env: Rails.env }.to_json ]
+      [ { ok: true }.to_json ]
     ]
   }
 
-  get '/tests', to: 'tests#index'
   get '/me/:user_id', to: 'users#me'
 
   get '/available_recharges_options', to: 'recharges#available_recharges_options'
@@ -16,7 +15,6 @@ Rails.application.routes.draw do
   get '/users/:user_id/phones/:id', to: 'phones#show'
   post '/users/:user_id/phones', to: 'phones#create'
   put '/users/:user_id/phones/:id', to: 'phones#update'
-  patch '/users/:user_id/phones/:id', to: 'phones#update'
   delete '/users/:user_id/phones/:id', to: 'phones#destroy'
 
   post '/users/:user_id/transfers', to: 'transfers#create'
