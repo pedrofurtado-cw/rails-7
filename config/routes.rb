@@ -9,4 +9,6 @@ Rails.application.routes.draw do
 
   get '/tests', to: 'tests#index'
   get '/me/:user_id', to: 'users#me'
+
+  get '/available_recharges_options', to: 'recharges#available_recharges_options'
 end
