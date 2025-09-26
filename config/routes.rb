@@ -1,5 +1,9 @@
 Rails.application.routes.draw do
-  get 'render/index'
-  # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
-  root 'render#index'
+  root to: proc {
+    [
+      200,
+      { "Content-Type" => "application/json" },
+      [ { app: 'funcionou', ok: true, env: Rails.env }.to_json ]
+    ]
+  }
 end

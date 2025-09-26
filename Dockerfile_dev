@@ -1,0 +1,26 @@
+FROM mirror.gcr.io/ruby:3.3.5-slim
+
+# Install system libraries, Postgres client and more
+RUN apt-get update -qq \
+    && apt-get install -y apt-utils build-essential \
+    && echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections \
+    # First install some essential packages
+    && apt-get install -y --no-install-recommends curl gnupg libpq-dev lsb-release \
+    # Add Postgres APT Repository \
+    && mkdir -m 0755 -p /etc/apt/keyrings/ \
+    && curl --silent --fail --show-error https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor -o /etc/apt/keyrings/POSTGRESQL.gpg \
+    && echo "deb [signed-by=/etc/apt/keyrings/POSTGRESQL.gpg] http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list \
+    # Now that the dependencies are set up we can actually install the packages we need
+    && apt-get update -qq \
+    && apt-get install -y --no-install-recommends build-essential libicu-dev shared-mime-info vim \
+    && apt-get install -y openssh-server openssh-sftp-server \
+    git ssh postgresql-client \
+    # Node and yarn are used by Firebase Admin SDK
+    nodejs yarn \
+    # Clean up apt data in the same RUN command to reduce disk usage
+    && apt-get clean autoclean \
+    && apt-get autoremove -y \
+    && rm -rf /var/lib/apt /var/lib/cache /var/lib/log
+
+# After installing dependencies it is time to move on the app itself
+WORKDIR /app
