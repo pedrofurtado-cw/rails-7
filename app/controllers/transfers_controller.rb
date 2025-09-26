@@ -4,20 +4,28 @@ class TransfersController < ApplicationController
   def create
     begin
       client = DingConnectClient.new
+      product = client.get_products.dig(:body, :Items).find { |p| p.dig(:SkuCode) == transfer_params[:sku_code] }
 
       response = client.send_transfer(
         sku_code: transfer_params[:sku_code],
         send_value: transfer_params[:price_for_backend],
         #account_number: @phone.phone.to_s.gsub('+', ''),
         validate_only: true,
-        account_number: DingConnectClient.new.get_products.dig(:body, :Items).find { |p| p.dig(:SkuCode) == transfer_params[:sku_code] }.dig(:UatNumber),
+        account_number: product.dig(:UatNumber),
         distributor_ref: 'teste1234'
       )
 
       if response[:success]
+        recharge = Recharge.create!(
+          user_id: params[:user_id],
+          phone_id: params[:phone_id],
+          amount: product.dig(:Maximum, :ReceiveValue)
+        )
+
         render json: {
           success: true,
           data: response[:body],
+          recharge: recharge
         }, status: :ok
       else
         render json: {
