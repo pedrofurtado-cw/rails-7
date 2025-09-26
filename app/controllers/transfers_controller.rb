@@ -1,20 +1,21 @@
 class TransfersController < ApplicationController
   def create
     begin
+      desired_sku_code = "BR_#{transfer_params[:provider_code]}_TopUp_#{transfer_params[:amount]}.00"
+
       client = DingConnectClient.new
-      product = client.get_products.dig(:body, :Items).find { |p| p.dig(:SkuCode) == transfer_params[:sku_code] }
+      product = client.get_products.dig(:body, :Items).find { |p| p.dig(:SkuCode) == desired_sku_code }
 
       response = client.send_transfer(
-        sku_code: transfer_params[:sku_code],
-        send_value: transfer_params[:price_for_backend],
+        sku_code: desired_sku_code,
+        send_value: product.dig(:Maximum, :SendValue),
         validate_only: true,
-        #account_number: transfer_params[:phone_number].to_s.gsub('+', ''),
         account_number: product.dig(:UatNumber),
         distributor_ref: 'teste1234'
       )
 
       if response[:success]
-        phone = Phone.create!(
+        phone = Phone.find_or_create_by!(
           user_id: params[:user_id],
           phone: transfer_params[:phone_number].to_s.gsub('+', ''),
           provider_code: product.dig(:ProviderCode)
@@ -29,6 +30,7 @@ class TransfersController < ApplicationController
         render json: {
           success: true,
           data: response[:body],
+          phone: phone,
           recharge: recharge
         }, status: :ok
       else
@@ -49,6 +51,6 @@ class TransfersController < ApplicationController
   private
 
   def transfer_params
-    params.require(:transfer).permit(:sku_code, :price_for_backend, :phone_number)
+    params.require(:transfer).permit(:provider_code, :amount, :phone_number)
   end
 end
