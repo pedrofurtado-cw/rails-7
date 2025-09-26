@@ -13,6 +13,7 @@ class TransfersController < ApplicationController
         send_value: product.dig(:Maximum, :SendValue),
         validate_only: true,
         account_number: product.dig(:UatNumber),
+        #account_number: transfer_params[:phone_number].to_s.gsub('+', ''),
         distributor_ref: SecureRandom.uuid.gsub('-', '')
       )
 
