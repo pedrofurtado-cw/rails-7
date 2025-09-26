@@ -6,4 +6,6 @@ Rails.application.routes.draw do
       [ { app: 'funcionou', ok: true, env: Rails.env }.to_json ]
     ]
   }
+
+  get '/tests', to: 'tests#index'
 end
