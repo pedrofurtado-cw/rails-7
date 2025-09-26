@@ -18,4 +18,6 @@ Rails.application.routes.draw do
   put '/users/:user_id/phones/:id', to: 'phones#update'
   patch '/users/:user_id/phones/:id', to: 'phones#update'
   delete '/users/:user_id/phones/:id', to: 'phones#destroy'
+
+  post '/users/:user_id/phones/:phone_id/transfers', to: 'transfers#create'
 end
