@@ -16,8 +16,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile_dev
-    #command: bash -c "rm -f tmp/pids/server.pid && bundle install && bundle exec rails s -p 3000 -b '0.0.0.0'"
-    command: bash -c "tail -f /dev/null"
+    command: bash -c "rm -f tmp/pids/server.pid && bundle install && bin/rails db:create db:migrate db:seed && bundle exec rails s -p 3000 -b '0.0.0.0'"
     ports:
       - "3333:3000"
     depends_on:
@@ -25,6 +24,7 @@ services:
     environment:
       POSTGRES_HOST: postgres
       CACHE_REDIS_URL: redis://redis:6379/2
+      RAILS_MASTER_KEY: 83415718363b96e5927f84d24c521640
     volumes:
       - .:/app
 volumes:
