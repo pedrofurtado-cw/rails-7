@@ -1,3 +1,0 @@
-TestRecord.destroy_all
-Recharge.destroy_all
-Phone.destroy_all
