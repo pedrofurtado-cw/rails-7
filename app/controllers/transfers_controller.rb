@@ -1,6 +1,4 @@
 class TransfersController < ApplicationController
-  before_action :set_user_phone
-
   def create
     begin
       client = DingConnectClient.new
@@ -9,16 +7,22 @@ class TransfersController < ApplicationController
       response = client.send_transfer(
         sku_code: transfer_params[:sku_code],
         send_value: transfer_params[:price_for_backend],
-        #account_number: @phone.phone.to_s.gsub('+', ''),
         validate_only: true,
+        #account_number: transfer_params[:phone_number].to_s.gsub('+', ''),
         account_number: product.dig(:UatNumber),
         distributor_ref: 'teste1234'
       )
 
       if response[:success]
+        phone = Phone.create!(
+          user_id: params[:user_id],
+          phone: transfer_params[:phone_number].to_s.gsub('+', ''),
+          provider_code: product.dig(:ProviderCode)
+        )
+
         recharge = Recharge.create!(
           user_id: params[:user_id],
-          phone_id: params[:phone_id],
+          phone_id: phone.id,
           amount: product.dig(:Maximum, :ReceiveValue)
         )
 
@@ -44,13 +48,7 @@ class TransfersController < ApplicationController
 
   private
 
-  def set_user_phone
-    @phone = Phone.where(user_id: params[:user_id]).find(params[:phone_id])
-  rescue ActiveRecord::RecordNotFound
-    render json: { error: 'Phone not found for this user' }, status: :not_found
-  end
-
   def transfer_params
-    params.require(:transfer).permit(:sku_code, :price_for_backend)
+    params.require(:transfer).permit(:sku_code, :price_for_backend, :phone_number)
   end
 end
